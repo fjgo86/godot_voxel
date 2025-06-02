@@ -94,7 +94,13 @@ bool VoxelMesherTransvoxel::is_generating_collision_surface() const {
 
 namespace {
 
-void fill_surface_arrays(Array &arrays, const transvoxel::MeshArrays &src) {
+void fill_surface_arrays(
+	Array &arrays,
+	const transvoxel::MeshArrays &src,
+	const VoxelBuffer *voxels = nullptr,
+	Vector3i origin = Vector3i(),
+	bool apply_colors = false
+) {
 	PackedVector3Array vertices;
 	PackedVector3Array normals;
 	PackedFloat32Array lod_data; // 4*float32
@@ -128,6 +134,25 @@ void fill_surface_arrays(Array &arrays, const transvoxel::MeshArrays &src) {
 		memcpy(texturing_data.ptrw(), src.texturing_data_2f32.data(), texturing_data.size() * sizeof(float));
 		arrays[Mesh::ARRAY_CUSTOM1] = texturing_data;
 	}
+
+	if (apply_colors){
+		PackedColorArray colors;
+		colors.resize(vertices.size());
+		for (int i = 0; i < vertices.size(); i += 3) {
+			Vector3i voxel_pos = Vector3i(Math::floor(vertices[i].x), Math::floor(vertices[i].y), Math::floor(vertices[i].z)) + origin;
+			uint32_t raw = voxels->get_voxel(voxel_pos, VoxelBuffer::CHANNEL_COLOR);
+			uint8_t biome_id = raw >> 24;
+			Color color;
+			color.r = float(i % 4) / 3.0f; // Te da 0.0, 0.33, 0.66, 1.0
+			color.g = 0.0f;
+			color.b = 0.0f;
+			color.a = 1.0f;
+			colors[i] = color;
+		}
+		arrays[Mesh::ARRAY_COLOR] = colors;
+	}
+	
+
 
 	arrays[Mesh::ARRAY_CUSTOM0] = lod_data;
 	arrays[Mesh::ARRAY_INDEX] = indices;
@@ -371,8 +396,9 @@ void VoxelMesherTransvoxel::build(VoxelMesher::Output &output, const VoxelMesher
 		}
 	}
 
+	const VoxelBuffer *voxel_buffer = static_cast<const VoxelBuffer*>(&(input.voxels));
 	Array gd_arrays;
-	fill_surface_arrays(gd_arrays, *combined_mesh_arrays);
+	fill_surface_arrays(gd_arrays, *combined_mesh_arrays, voxel_buffer, input.origin_in_voxels, true);
 	output.surfaces.push_back({ gd_arrays, 0 });
 
 	// const uint64_t time_spent = Time::get_singleton()->get_ticks_usec() - time_before;

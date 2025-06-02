@@ -64,12 +64,13 @@ voxel_version.generate_version_header(False)
 # TODO Enhancement: not sure how to provide this as a SCons option since we get our environment *by running GodotCpp*...
 #env_vars.Add(PathVariable("godot_cpp_path", "Path to the GodotCpp library source code", None, PathVariable.PathIsDir))
 # TODO GDX: Have GodotCpp in thirdparty/ eventually
-godot_cpp_path = os.environ.get("GODOT_CPP_PATH", "D:/PROJETS/INFO/GODOT/Engine/godot_cpp_fork")
+
 
 # Dependency on GodotCpp.
 # Use the same cross-platform configurations.
 # TODO GDX: Make sure this isn't doing too much?
-env = SConscript(godot_cpp_path + "/SConstruct")
+
+env = SConscript("../../tterrain/.gdextensions/godot-cpp/SConstruct")
 
 # TODO GDX: Adding our variables produces a warning when provided.
 # "WARNING: Unknown SCons variables were passed and will be ignored"
@@ -92,6 +93,17 @@ configure_warnings(env)
 is_editor_build = (env["target"] == "editor")
 
 sources = common.get_sources(env, is_editor_build)
+
+sources += Glob("world_generator/*.cpp")
+
+env.Append(
+    CPPPATH=[
+        ".",
+        "world_generator/",  # Add your include folder(s) here
+        # Add more paths as needed, e.g.:
+        # "some/other/include/path",
+    ]
+)
 
 if env["voxel_sqlite"]:
     # TODO Enhancement: the way SQLite is integrated should not be duplicated between Godot and GodotCpp targets.
@@ -147,5 +159,11 @@ else:
         ),
         source = sources
     )
+
+# Install the built library to the target Godot project
+install_target = "E:/Proyectos/godot/game/voxel/voxelgame/addons/zylann.voxel/bin"
+installed = env.Install(install_target, library)
+Default(library, installed)
+# ...existing code...
 
 Default(library)
