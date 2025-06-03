@@ -1,4 +1,4 @@
-# VoxelMesherTransvoxel
+# BiomeMesherTransvoxel
 
 Inherits: [VoxelMesher](VoxelMesher.md)
 
@@ -14,7 +14,7 @@ Type                                                                      | Name
 [float](https://docs.godotengine.org/en/stable/classes/class_float.html)  | [mesh_optimization_error_threshold](#i_mesh_optimization_error_threshold)  | 0.005             
 [float](https://docs.godotengine.org/en/stable/classes/class_float.html)  | [mesh_optimization_target_ratio](#i_mesh_optimization_target_ratio)        | 0.0               
 [bool](https://docs.godotengine.org/en/stable/classes/class_bool.html)    | [textures_ignore_air_voxels](#i_textures_ignore_air_voxels)                | false             
-[TexturingMode](VoxelMesherTransvoxel.md#enumerations)                    | [texturing_mode](#i_texturing_mode)                                        | TEXTURES_NONE (0) 
+[TexturingMode](BiomeMesherTransvoxel.md#enumerations)                    | [texturing_mode](#i_texturing_mode)                                        | TEXTURES_NONE (0) 
 [bool](https://docs.godotengine.org/en/stable/classes/class_bool.html)    | [transitions_enabled](#i_transitions_enabled)                              | true              
 <p></p>
 
@@ -37,7 +37,7 @@ enum **TexturingMode**:
 
 ## Constants: 
 
-- <span id="i_TEXTURES_BLEND_4_OVER_16"></span>**TEXTURES_BLEND_4_OVER_16** = **1** --- *This constant is deprecated. Use TEXTURES_MIXEL4_S4* Legacy alias for [TEXTURES_MIXEL4_S4](VoxelMesherTransvoxel.md#i_TEXTURES_MIXEL4_S4).
+- <span id="i_TEXTURES_BLEND_4_OVER_16"></span>**TEXTURES_BLEND_4_OVER_16** = **1** --- *This constant is deprecated. Use TEXTURES_MIXEL4_S4* Legacy alias for [TEXTURES_MIXEL4_S4](BiomeMesherTransvoxel.md#i_TEXTURES_MIXEL4_S4).
 
 ## Property Descriptions
 
@@ -61,7 +61,7 @@ When a marching cube cell is computed, vertices may be placed anywhere on edges 
 
 *(This property has no documentation)*
 
-### [TexturingMode](VoxelMesherTransvoxel.md#enumerations)<span id="i_texturing_mode"></span> **texturing_mode** = TEXTURES_NONE (0)
+### [TexturingMode](BiomeMesherTransvoxel.md#enumerations)<span id="i_texturing_mode"></span> **texturing_mode** = TEXTURES_NONE (0)
 
 *(This property has no documentation)*
 

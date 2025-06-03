@@ -14,8 +14,8 @@ namespace godot {
 class VoxelBuffer;
 }
 
-class VoxelMesherTransvoxel : public VoxelMesher {
-	GDCLASS(VoxelMesherTransvoxel, VoxelMesher)
+class BiomeMesherTransvoxel : public VoxelMesher {
+	GDCLASS(BiomeMesherTransvoxel, VoxelMesher)
 
 public:
 	enum TexturingMode {
@@ -27,8 +27,8 @@ public:
 
 	static const int TEXTURES_BLEND_4_OVER_16 = 1;
 
-	VoxelMesherTransvoxel();
-	~VoxelMesherTransvoxel();
+	BiomeMesherTransvoxel();
+	~BiomeMesherTransvoxel();
 
 	void build(VoxelMesher::Output &output, const VoxelMesher::Input &input) override;
 	Ref<ArrayMesh> build_transition_mesh(Ref<godot::VoxelBuffer> voxels, int direction);
@@ -81,6 +81,15 @@ public:
 	// 	TRANSITION_COMBINED
 	// };
 
+// Custom
+private:
+
+	Ref<ShaderMaterial> _override_material;
+
+public:
+	void set_override_material(Ref<ShaderMaterial> material);
+	Ref<ShaderMaterial> get_override_material() const;
+	
 protected:
 	static void _bind_methods();
 
@@ -104,10 +113,13 @@ private:
 	bool _transitions_enabled = true;
 
 	bool _textures_ignore_air_voxels = false;
+	
+
+	
 };
 
 } // namespace zylann::voxel
 
-VARIANT_ENUM_CAST(zylann::voxel::VoxelMesherTransvoxel::TexturingMode);
+VARIANT_ENUM_CAST(zylann::voxel::BiomeMesherTransvoxel::TexturingMode);
 
 #endif // VOXEL_MESHER_TRANSVOXEL_H

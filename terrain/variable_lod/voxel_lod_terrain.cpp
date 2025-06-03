@@ -398,7 +398,7 @@ void VoxelLodTerrain::set_mesher(Ref<VoxelMesher> p_mesher) {
 
 	_mesher = p_mesher;
 
-	update_shader_material_pool_template();
+	//update_shader_material_pool_template();
 
 	MeshingDependency::reset(_meshing_dependency, _mesher, get_generator());
 
@@ -1092,7 +1092,7 @@ void VoxelLodTerrain::_notification(int p_what) {
 			// abstract, it doesn't work... and it cannot be a default value because such practice was deprecated with a
 			// warning in Godot 4.
 			if (Engine::get_singleton()->is_editor_hint() && !get_mesher().is_valid()) {
-				Ref<VoxelMesherTransvoxel> mesher;
+				Ref<BiomeMesherTransvoxel> mesher;
 				mesher.instantiate();
 				set_mesher(mesher);
 			}

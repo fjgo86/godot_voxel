@@ -55,7 +55,7 @@
             - [VoxelMesher](VoxelMesher.md)
                 - [VoxelMesherBlocky](VoxelMesherBlocky.md)
                 - [VoxelMesherCubes](VoxelMesherCubes.md)
-                - [VoxelMesherTransvoxel](VoxelMesherTransvoxel.md)
+                - [BiomeMesherTransvoxel](BiomeMesherTransvoxel.md)
             - [VoxelStream](VoxelStream.md)
                 - [VoxelStreamMemory](VoxelStreamMemory.md)
                 - [VoxelStreamRegionFiles](VoxelStreamRegionFiles.md)

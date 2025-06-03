@@ -53,7 +53,7 @@ Return                                                                          
 
 enum **TextureMode**: 
 
-- <span id="i_TEXTURE_MODE_MIXEL4"></span>**TEXTURE_MODE_MIXEL4** = **0** --- Writes texture data into [VoxelBuffer.CHANNEL_INDICES](VoxelBuffer.md#i_CHANNEL_INDICES) as 4 packed 4-bit indices and into [VoxelBuffer.CHANNEL_WEIGHTS](VoxelBuffer.md#i_CHANNEL_WEIGHTS) as 4 packed 4-bit weights. See [VoxelMesherTransvoxel](VoxelMesherTransvoxel.md) and docs about smooth voxels to see how this data is used.
+- <span id="i_TEXTURE_MODE_MIXEL4"></span>**TEXTURE_MODE_MIXEL4** = **0** --- Writes texture data into [VoxelBuffer.CHANNEL_INDICES](VoxelBuffer.md#i_CHANNEL_INDICES) as 4 packed 4-bit indices and into [VoxelBuffer.CHANNEL_WEIGHTS](VoxelBuffer.md#i_CHANNEL_WEIGHTS) as 4 packed 4-bit weights. See [BiomeMesherTransvoxel](BiomeMesherTransvoxel.md) and docs about smooth voxels to see how this data is used.
 - <span id="i_TEXTURE_MODE_SINGLE"></span>**TEXTURE_MODE_SINGLE** = **1** --- Writes texture data into [VoxelBuffer.CHANNEL_INDICES](VoxelBuffer.md#i_CHANNEL_INDICES) as one 8-bit value per voxel. If you want to use this mode, make sure your voxels have the appropriate format (see [VoxelFormat](VoxelFormat.md))
 
 

@@ -526,7 +526,7 @@ void VoxelInstanceGenerator::generate_transforms(
 	}
 
 	// Filter out by voxel materials
-	// Assuming 4x8-bit weights and 4x8-bit indices as used in VoxelMesherTransvoxel for now, but might have other
+	// Assuming 4x8-bit weights and 4x8-bit indices as used in BiomeMesherTransvoxel for now, but might have other
 	// formats in the future
 	if (voxel_material_filter_enabled && surface_arrays.size() >= Mesh::ARRAY_CUSTOM1) {
 		ZN_PROFILE_SCOPE();

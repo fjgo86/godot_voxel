@@ -188,6 +188,8 @@
 #include "util/testing/test_options.h"
 #endif
 
+#include "world_generator/world_generator.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // This is used to have an idea of the memory footprint of various objects as Godot and Voxel development progresses.
@@ -329,7 +331,7 @@ void initialize_voxel_module(ModuleInitializationLevel p_level) {
 #endif
 
 #ifdef VOXEL_ENABLE_SMOOTH_MESHING
-		ClassDB::register_class<VoxelMesherTransvoxel>();
+		ClassDB::register_class<BiomeMesherTransvoxel>();
 #endif
 
 #ifdef VOXEL_ENABLE_MODIFIERS
@@ -421,7 +423,7 @@ void initialize_voxel_module(ModuleInitializationLevel p_level) {
 		);
 
 #ifdef VOXEL_ENABLE_SMOOTH_MESHING
-		VoxelMesherTransvoxel::load_static_resources();
+		BiomeMesherTransvoxel::load_static_resources();
 #endif
 
 #ifdef VOXEL_TESTS
@@ -568,6 +570,7 @@ void initialize_voxel_module(ModuleInitializationLevel p_level) {
 #endif
 	}
 #endif // TOOLS_ENABLED
+	WorldGenerator::expose_classes();
 }
 
 void uninitialize_voxel_module(ModuleInitializationLevel p_level) {
@@ -583,7 +586,7 @@ void uninitialize_voxel_module(ModuleInitializationLevel p_level) {
 		// singleton... See https://github.com/Zylann/godot_voxel/issues/189
 
 #ifdef VOXEL_ENABLE_SMOOTH_MESHING
-		VoxelMesherTransvoxel::free_static_resources();
+		BiomeMesherTransvoxel::free_static_resources();
 #endif
 		VoxelStringNames::destroy_singleton();
 		pg::NodeTypeDB::destroy_singleton();

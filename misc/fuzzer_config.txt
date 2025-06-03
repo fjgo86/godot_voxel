@@ -34,7 +34,7 @@ VoxelMesher
 VoxelMesherBlocky
 VoxelMesherCubes
 VoxelMesherDMC
-VoxelMesherTransvoxel
+BiomeMesherTransvoxel
 VoxelModifier
 VoxelModifierMesh
 VoxelModifierSphere

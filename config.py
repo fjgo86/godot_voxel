@@ -67,7 +67,7 @@ def get_doc_classes():
         "VoxelMesher",
         "VoxelMesherBlocky",
         "VoxelMesherCubes",
-        "VoxelMesherTransvoxel",
+        "BiomeMesherTransvoxel",
         "VoxelMeshSDF",
         "VoxelModifier",
         "VoxelModifierMesh",

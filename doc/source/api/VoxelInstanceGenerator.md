@@ -189,7 +189,7 @@ This depends on [VoxelInstancer.up_mode](VoxelInstancer.md#i_up_mode).
 
 Specifies which voxel texture indices on top of which instances may spawn.
 
-This only works when [voxel_texture_filter_enabled](VoxelInstanceGenerator.md#i_voxel_texture_filter_enabled) is enabled, and [VoxelMesherTransvoxel](VoxelMesherTransvoxel.md) is used with [VoxelMesherTransvoxel.texturing_mode](VoxelMesherTransvoxel.md#i_texturing_mode) set to [VoxelMesherTransvoxel.TEXTURES_BLEND_4_OVER_16](VoxelMesherTransvoxel.md#i_TEXTURES_BLEND_4_OVER_16).
+This only works when [voxel_texture_filter_enabled](VoxelInstanceGenerator.md#i_voxel_texture_filter_enabled) is enabled, and [BiomeMesherTransvoxel](BiomeMesherTransvoxel.md) is used with [BiomeMesherTransvoxel.texturing_mode](BiomeMesherTransvoxel.md#i_texturing_mode) set to [BiomeMesherTransvoxel.TEXTURES_BLEND_4_OVER_16](BiomeMesherTransvoxel.md#i_TEXTURES_BLEND_4_OVER_16).
 
 ### [bool](https://docs.godotengine.org/en/stable/classes/class_bool.html)<span id="i_voxel_texture_filter_enabled"></span> **voxel_texture_filter_enabled** = false
 

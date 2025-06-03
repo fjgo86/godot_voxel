@@ -411,7 +411,7 @@
 			Channel used to store voxel types. Used by [VoxelMesherBlocky].
 		</constant>
 		<constant name="CHANNEL_SDF" value="1" enum="ChannelId">
-			Channel used to store SDF data (signed distance field). Used by [VoxelMesherTransvoxel] and other smooth meshers. Values should preferably be accessed as floats. Negative values are below the isosurface (inside matter), and positive values are above the surface (outside matter).
+			Channel used to store SDF data (signed distance field). Used by [BiomeMesherTransvoxel] and other smooth meshers. Values should preferably be accessed as floats. Negative values are below the isosurface (inside matter), and positive values are above the surface (outside matter).
 		</constant>
 		<constant name="CHANNEL_COLOR" value="2" enum="ChannelId">
 			Channel used to store color data. Used by [VoxelMesherCubes].

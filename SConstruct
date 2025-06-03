@@ -82,7 +82,8 @@ common.register_scons_options(env, True)
 
 env.Append(CPPDEFINES=[
 	# Tell engine-agnostic code we are using Godot Engine as an extension
-	"ZN_GODOT_EXTENSION"
+	"ZN_GODOT_EXTENSION",
+    "VOXEL_ENABLE_SMOOTH_MESHING"
 ])
 
 # We don't enable warnings on thirdparty libs

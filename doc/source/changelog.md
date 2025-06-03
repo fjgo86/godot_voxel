@@ -26,7 +26,7 @@ Primarily developped with Godot 4.4.1+
     - Added `remove_instances_in_sphere`
     - Added fading system so a shader can be used to fade instances as they load in and out
 - `VoxelMesherBlocky`: added tint mode to modulate voxel colors using the `COLOR` channel.
-- `VoxelMesherTransvoxel`: added `Single` texturing mode, which uses only one byte per voxel to store a texture index. `VoxelGeneratorGraph` was also updated to include this mode.
+- `BiomeMesherTransvoxel`: added `Single` texturing mode, which uses only one byte per voxel to store a texture index. `VoxelGeneratorGraph` was also updated to include this mode.
 - `VoxelTool`: added `do_mesh` to replace `stamp_sdf`. Supported on terrains only.
 - Build system: added options to turn off features when doing custom builds
 - Introduced `VoxelFormat` to allow overriding default channel depths (was required to use the new `Single` voxel textures mode)
@@ -44,7 +44,7 @@ Primarily developped with Godot 4.4.1+
         - Editor: decimal numbers that have no exact float representation are now displayed rounded instead of widening nodes excessively. Instead, the exact value is shown with a tooltip.
         - Fixed incorrect texture painting leading to black triangles when using Mixel4 with OutputSingleTexture and GPU generation
     - `VoxelMesherBlocky`: Fixed crash when invalid model IDs are present at chunk borders with `VoxelLodTerrain`
-    - `VoxelMesherTransvoxel`: Fixed some incorrect geometry changes near positive LOD borders, notably when voxel textures are used. Edge cases remain but can be fixed with a shader hack for now.
+    - `BiomeMesherTransvoxel`: Fixed some incorrect geometry changes near positive LOD borders, notably when voxel textures are used. Edge cases remain but can be fixed with a shader hack for now.
     - `VoxelStreamRegionFiles`: GDExtension: fixed error creating directories
     - `VoxelStreamSQLite`: 
         - `preferred_coordinate_format` was incorrectly exposed (fixed thanks to @beicause)
@@ -89,7 +89,7 @@ Primarily developped with Godot 4.4.
 - `VoxelInstanceGenerator`: Added `OnePerTriangle` emission mode
 - `VoxelTool`: `raycast` also returns a `normal` based on voxel data (it may be different from a physics raycast in some cases)
 - `VoxelToolLodTerrain`: Implemented raycast when the mesher is `VoxelMesherBlocky` or `VoxelMesherCubes`
-- `VoxelInstanceGenerator`: Added ability to filter spawning by voxel texture indices, when using `VoxelMesherTransvoxel` with `texturing_mode` set to `4-blend over 16 textures`
+- `VoxelInstanceGenerator`: Added ability to filter spawning by voxel texture indices, when using `BiomeMesherTransvoxel` with `texturing_mode` set to `4-blend over 16 textures`
 - `VoxelMesherBlocky`: Added basic support for fluid models
 
 - Fixes
@@ -111,7 +111,7 @@ Primarily developped with Godot 4.4.
         - Fixed occasional holes in terrain when using `FastNoise3D` nodes with the `OpenSimplex2S` noise type
         - Fixed shader generation error when using the `Distance3D` node (vec2 instead of vec3, thanks to scwich)
         - Fixed crash when assigning an empty image to the `Image` node
-    - `VoxelMesherTransvoxel`: revert texturing logic that attempted to prevent air voxels from contributing, but was lowering quality. It is now optional as an experimental property.
+    - `BiomeMesherTransvoxel`: revert texturing logic that attempted to prevent air voxels from contributing, but was lowering quality. It is now optional as an experimental property.
     - `VoxelStreamSQLite`: Fixed "empty size" errors when loading areas with edited `VoxelInstancer` data
     - `VoxelTool`: `raycast`: when using blocky voxels, the returned `distance_along_ray` now accounts for non-cube voxels 
     - `VoxelVoxLoader`: Fixed loading `.vox` files saved with versions of MagicaVoxel following 0.99.7
@@ -119,7 +119,7 @@ Primarily developped with Godot 4.4.
 
 - Breaking changes
     - `VoxelInstanceLibrary`: Items should no longer be accessed using generated properties (`item1`, `item2` etc). Use `get_item` instead.
-    - `VoxelMesherTransvoxel`: Removed `deep_sampling` experimental option
+    - `BiomeMesherTransvoxel`: Removed `deep_sampling` experimental option
     - `VoxelTool`: The `flat_direction` of `do_hemisphere` now points away from the flat side of the hemisphere (like its normal), instead of pointing towards it
     - `VoxelToolLodTerrain`: `raycast` used to take coordinates in terrain space. It is now in world space, for consistency with `VoxelToolTerrain`.
 
@@ -135,7 +135,7 @@ Primarily developped with Godot 4.3.
 - `VoxelMesherBlocky`:
     - Can be used with `VoxelLodTerrain`. Basic support: meshes scale with LOD and LOD>1 chunks have extra geometry to reduce cracks between LODs
     - Added experimental "shadow occluders": generates quads on chunk sides if they are covered by opaque voxels, to force shadows to project in caves when  there is no surface for DirectionalLight to project from (see #622).
-- `VoxelMesherTransvoxel`:
+- `BiomeMesherTransvoxel`:
     - added `edge_clamp_margin` property to prevent triangles from becoming too small, at the cost of slightly lower fidelity
     - reverted removal of degenerate triangles
 - `VoxelStreamSQLite`: Added option to change the coordinate format, now defaulting to a format allowing larger coordinates. Existing saves keep their original format.
@@ -195,7 +195,7 @@ Primarily developped with Godot 4.2.
         - Has its own limitations and pending improvements, may be addressed over time
         - The original system is now referenced as "Legacy Octree".
     - Debug drawing is now exposed as properties. Editor checkboxes were removed from the terrain menu
-- `VoxelMesherTransvoxel`: textures from air voxels (SDF>0) no longer contribute to the mesh
+- `BiomeMesherTransvoxel`: textures from air voxels (SDF>0) no longer contribute to the mesh
 - `VoxelStream`:
     - Added `flush` method to force writing to the filesystem in case the stream's implementation uses caching
 - `VoxelStreamSQLite`: Added support for `user://` paths (via internal call to `ProjectSettings.globalize_path()`)
@@ -332,7 +332,7 @@ Primarily developped with Godot 4.1
     - `VoxelTerrain`: Fixed crash when the terrain tries to update while it has no mesher assigned
     - `VoxelLodTerrain`: Fixed error spam when re-generating or destroying the terrain
     - `VoxelMesherBlocky`: Fixed materials "wrapping around" when more than 256 are used. Raised limit to 65536.
-    - `VoxelMesherTransvoxel`: Removed rare degenerate/microscopic triangles, which caused errors with Jolt Physics. However, doing those checks makes meshing about 15% slower (untextured).
+    - `BiomeMesherTransvoxel`: Removed rare degenerate/microscopic triangles, which caused errors with Jolt Physics. However, doing those checks makes meshing about 15% slower (untextured).
     - `VoxelStreamRegionFiles`: Fixed `block_size_po2` wasn't working correctly
     - `VoxelToolTerrain`: Fixed terrain was not marked as modified when setting voxel metadata
     - `VoxelToolLodTerrain`: 
@@ -409,7 +409,7 @@ Godot 4 is required from this version.
         - added *experimental* `do_sphere_async`, an alternative version of `do_sphere` which defers the task on threads to reduce stutter if the affected area is big.
         - added `stamp_sdf` function to place a baked mesh SDF on the terrain
         - added `do_graph` to run a custom brush based on `VoxelGeneratorGraph` in a specific area. An `InputSDF` node was added in order to support SDF modifications.
-    - `VoxelMesherTransvoxel`:
+    - `BiomeMesherTransvoxel`:
         - initial support for deep SDF sampling, to affine vertex positions at low levels of details (slow and limited proof of concept for now).
         - Variable LOD: regular and transition meshes are now combined in one single mesh per chunk. A shader is required to render it, but creates far less mesh resources and reduces the amount of draw calls.
 
@@ -447,7 +447,7 @@ Godot 4 is required from this version.
         - editor: color mode is now a proper dropdown
         - fixed raw color mode not working properly
         - wrong alpha check between transparent and solid cubes
-    - `VoxelMesherTransvoxel`:
+    - `BiomeMesherTransvoxel`:
         - fixed surface not appearing if it lines up exactly at integer coordinates
         - fixed occasional holes and "spikes" in geometry in some specific configurations
     - `VoxelStreamScript`: fix voxel data not getting retrieved when `BLOCK_FOUND` is returned
@@ -463,8 +463,8 @@ Godot 4 is required from this version.
     - `VoxelTerrain`: the main way to specify materials is no longer here, but in meshers instead.
     - `VoxelLodTerrain`: `set_process_mode` and `get_process_mode` were renamed `set_process_callback` and `get_process_callback` (due to a name conflict)
     - `VoxelLodTerrain`: `has_block` was renamed `has_data_block`
-    - `VoxelMesherTransvoxel`: Shader API: The data in `COLOR` and `UV` was moved respectively to `CUSTOM0` and `CUSTOM1` (old attributes no longer work for this use case)
-    - `VoxelMesherTransvoxel`: Variable LOD: a shader is now required to properly render transitions
+    - `BiomeMesherTransvoxel`: Shader API: The data in `COLOR` and `UV` was moved respectively to `CUSTOM0` and `CUSTOM1` (old attributes no longer work for this use case)
+    - `BiomeMesherTransvoxel`: Variable LOD: a shader is now required to properly render transitions
     - `Voxel` was renamed `VoxelBlockyModel`
     - `VoxelLibrary` was renamed `VoxelBlockyLibrary`
     - `VoxelVoxImporter` was renamed `VoxelVoxSceneImporter`
@@ -530,9 +530,9 @@ This branch is the last supporting Godot 3
     - Added *.vox importers to import MagicaVoxel files as scenes or meshes
 
 - Smooth voxels
-    - `VoxelMesherTransvoxel`:
+    - `BiomeMesherTransvoxel`:
         - Initial support for texturing data in voxels, using 4-bit indices and weights
-    - `VoxelMesherTransvoxel`:
+    - `BiomeMesherTransvoxel`:
         - optimized hot path, making it about 20% faster
         - added option to simplify meshes using MeshOptimizer
     - `VoxelToolLodTerrain`: 
@@ -564,7 +564,7 @@ This branch is the last supporting Godot 3
         - `copy_voxel_metadata_in_area` was checking the source box incorrectly
         - multiple calls to `create()` with different sizes could lead to heap corruption if a channel was not uniform
         - `copy_channel_from_area` could lead to heap corruption if the source and destination had the same size and were copied entirely
-    - `VoxelMesherTransvoxel`: no longer crashes when the input buffer is not cubic
+    - `BiomeMesherTransvoxel`: no longer crashes when the input buffer is not cubic
     - `VoxelLodTerrain`:
         - fixed errors and crashes when editing voxels near loading borders
         - fixed crash occurring after a few edits when LOD count is set to 1
@@ -710,7 +710,7 @@ This branch is the last supporting Godot 3
     - Removed channel enum from `Voxel`, it was redundant with `VoxelBuffer`
     - Renamed `VoxelBuffer.CHANNEL_ISOLEVEL` => `CHANNEL_SDF`
     - Removed `VoxelIsoSurfaceTool`, superseded by `VoxelTool`
-    - Removed `VoxelMesherMC`, superseded by `VoxelMesherTransvoxel`
+    - Removed `VoxelMesherMC`, superseded by `BiomeMesherTransvoxel`
     - Replaced `VoxelGeneratorTest` by `VoxelGeneratorWaves` and `VoxelGeneratorFlat`
 
 

@@ -75,26 +75,26 @@ Ref<Mesh> VoxelMesher::build_mesh(
 			continue;
 		}
 
-		Ref<Material> material;
+		/*Ref<Material> material;
 		if (int(surface.material_index) < materials.size()) {
 			material = materials[surface.material_index];
-		}
-		if (material.is_null()) {
+		}*/
+		/*if (material.is_null()) {
 			material = get_material_by_index(surface.material_index);
-		}
+		}*/
 
 		mesh->add_surface_from_arrays(output.primitive_type, arrays, Array(), Dictionary(), output.mesh_flags);
-		mesh->surface_set_material(gd_surface_index, material);
+		//mesh->surface_set_material(gd_surface_index, material);
 		++gd_surface_index;
 	}
 
 #ifdef VOXEL_ENABLE_SMOOTH_MESHING
 	if (detail_texture_settings.enabled && input.generator != nullptr) {
-		VoxelMesherTransvoxel *transvoxel_mesher = Object::cast_to<VoxelMesherTransvoxel>(this);
+		BiomeMesherTransvoxel *transvoxel_mesher = Object::cast_to<BiomeMesherTransvoxel>(this);
 
 		if (transvoxel_mesher != nullptr) {
-			const transvoxel::MeshArrays &mesh_arrays = VoxelMesherTransvoxel::get_mesh_cache_from_current_thread();
-			Span<const transvoxel::CellInfo> cell_infos = VoxelMesherTransvoxel::get_cell_info_from_current_thread();
+			const transvoxel::MeshArrays &mesh_arrays = BiomeMesherTransvoxel::get_mesh_cache_from_current_thread();
+			Span<const transvoxel::CellInfo> cell_infos = BiomeMesherTransvoxel::get_cell_info_from_current_thread();
 			TransvoxelCellIterator cell_iterator(cell_infos);
 			DetailTextureData nm_data;
 

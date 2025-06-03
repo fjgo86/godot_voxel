@@ -61,7 +61,7 @@ void test_normalmap_render_gpu() {
 
 	generator->compile_shaders();
 
-	Ref<VoxelMesherTransvoxel> mesher;
+	Ref<BiomeMesherTransvoxel> mesher;
 	mesher.instantiate();
 
 	const int block_size = 16;
@@ -79,8 +79,8 @@ void test_normalmap_render_gpu() {
 	const bool mesh_is_empty = VoxelMesher::is_mesh_empty(mesher_output.surfaces);
 	ZN_TEST_ASSERT(!mesh_is_empty);
 
-	const transvoxel::MeshArrays &mesh_arrays = VoxelMesherTransvoxel::get_mesh_cache_from_current_thread();
-	Span<const transvoxel::CellInfo> cell_infos = VoxelMesherTransvoxel::get_cell_info_from_current_thread();
+	const transvoxel::MeshArrays &mesh_arrays = BiomeMesherTransvoxel::get_mesh_cache_from_current_thread();
+	Span<const transvoxel::CellInfo> cell_infos = BiomeMesherTransvoxel::get_cell_info_from_current_thread();
 	ZN_ASSERT(cell_infos.size() > 0 && mesh_arrays.vertices.size() > 0);
 
 	UniquePtr<TransvoxelCellIterator> cell_iterator = make_unique_instance<TransvoxelCellIterator>(cell_infos);

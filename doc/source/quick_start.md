@@ -65,7 +65,7 @@ You can modify the shape of the terrain by changing noise parameters under the g
 
 1.1) `Generator`: create a new `VoxelGeneratorNoise`. Then click on it and set its `Channel` parameter to `SDF`. Also make sure the `noise` property is assigned to a noise resource.
 
-1.2) `Mesher`: create a new `VoxelMesherTransvoxel`.
+1.2) `Mesher`: create a new `BiomeMesherTransvoxel`.
 
 2) At this point you should start to see a smooth, spongy terrain appear in the editor viewport. You might need to look around and zoom out a bit. If you can't see anything, you can force a reload by reopening the scene, or using the menu `Terrain -> Re-generate`.
 

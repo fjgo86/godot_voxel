@@ -41,15 +41,15 @@ StdVector<CellInfo> &get_tls_cell_infos() {
 }
 } // namespace transvoxel
 
-const transvoxel::MeshArrays &VoxelMesherTransvoxel::get_mesh_cache_from_current_thread() {
+const transvoxel::MeshArrays &BiomeMesherTransvoxel::get_mesh_cache_from_current_thread() {
 	return transvoxel::get_tls_mesh_arrays();
 }
 
-Span<const transvoxel::CellInfo> VoxelMesherTransvoxel::get_cell_info_from_current_thread() {
+Span<const transvoxel::CellInfo> BiomeMesherTransvoxel::get_cell_info_from_current_thread() {
 	return to_span(transvoxel::get_tls_cell_infos());
 }
 
-void VoxelMesherTransvoxel::load_static_resources() {
+void BiomeMesherTransvoxel::load_static_resources() {
 	Ref<Shader> shader;
 	shader.instantiate();
 	shader->set_code(g_transvoxel_minimal_shader);
@@ -57,17 +57,17 @@ void VoxelMesherTransvoxel::load_static_resources() {
 	g_minimal_shader_material->set_shader(shader);
 }
 
-void VoxelMesherTransvoxel::free_static_resources() {
+void BiomeMesherTransvoxel::free_static_resources() {
 	g_minimal_shader_material.unref();
 }
 
-VoxelMesherTransvoxel::VoxelMesherTransvoxel() {
+BiomeMesherTransvoxel::BiomeMesherTransvoxel() {
 	set_padding(transvoxel::MIN_PADDING, transvoxel::MAX_PADDING);
 }
 
-VoxelMesherTransvoxel::~VoxelMesherTransvoxel() {}
+BiomeMesherTransvoxel::~BiomeMesherTransvoxel() {}
 
-int VoxelMesherTransvoxel::get_used_channels_mask() const {
+int BiomeMesherTransvoxel::get_used_channels_mask() const {
 	uint32_t mask = 1 << VoxelBuffer::CHANNEL_SDF;
 
 	switch (_texture_mode) {
@@ -87,7 +87,7 @@ int VoxelMesherTransvoxel::get_used_channels_mask() const {
 	return mask;
 }
 
-bool VoxelMesherTransvoxel::is_generating_collision_surface() const {
+bool BiomeMesherTransvoxel::is_generating_collision_surface() const {
 	// Via submesh indices
 	return true;
 }
@@ -134,28 +134,45 @@ void fill_surface_arrays(
 		memcpy(texturing_data.ptrw(), src.texturing_data_2f32.data(), texturing_data.size() * sizeof(float));
 		arrays[Mesh::ARRAY_CUSTOM1] = texturing_data;
 	}
+	int min_height = -10;
+	int height_step = 10;
+	PackedColorArray colors;
 
 	if (apply_colors){
-		PackedColorArray colors;
 		colors.resize(vertices.size());
-		for (int i = 0; i < vertices.size(); i += 3) {
-			Vector3i voxel_pos = Vector3i(Math::floor(vertices[i].x), Math::floor(vertices[i].y), Math::floor(vertices[i].z)) + origin;
-			uint32_t raw = voxels->get_voxel(voxel_pos, VoxelBuffer::CHANNEL_COLOR);
-			uint8_t biome_id = raw >> 24;
+		for (int i = 0; i < vertices.size(); ++i) {
 			Color color;
-			color.r = float(i % 4) / 3.0f; // Te da 0.0, 0.33, 0.66, 1.0
+			Vector3i voxel_pos = Vector3i(Math::floor(vertices[i].x), Math::floor(vertices[i].y), Math::floor(vertices[i].z)) + origin;
+
+			// Índice de bioma: valores 0, 1, 2, 3 en bandas por X
+			int biome_id = CLAMP((voxel_pos.y - min_height) / height_step, 0, 3);
+			color.r = float(biome_id) / 4.0f; // Shader: biome_index = int(COLOR.r * 4.0);
 			color.g = 0.0f;
 			color.b = 0.0f;
 			color.a = 1.0f;
+
 			colors[i] = color;
 		}
-		arrays[Mesh::ARRAY_COLOR] = colors;
 	}
 	
+	PackedVector2Array uvs;
+	uvs.resize(vertices.size());
+	for (int i = 0; i < vertices.size(); ++i) {
+			const Vector3 &v = vertices[i];
+			// Proyección plana en XZ (u,v) — simple y útil
+			uvs[i] = Vector2(v.x, v.z) * 0.1f; // escala para evitar estiramiento
+	}
 
-
+	arrays[Mesh::ARRAY_TEX_UV] = uvs;
 	arrays[Mesh::ARRAY_CUSTOM0] = lod_data;
 	arrays[Mesh::ARRAY_INDEX] = indices;
+	if (apply_colors){
+		arrays[Mesh::ARRAY_COLOR] = colors;
+	}
+
+	CRASH_COND(arrays[Mesh::ARRAY_VERTEX].get_type() != Variant::PACKED_VECTOR3_ARRAY);
+	CRASH_COND(arrays[Mesh::ARRAY_COLOR].get_type() != Variant::PACKED_COLOR_ARRAY);
+	CRASH_COND(arrays[Mesh::ARRAY_TEX_UV].get_type() != Variant::PACKED_VECTOR2_ARRAY);
 }
 
 template <typename T>
@@ -250,14 +267,14 @@ void simplify(
 } // namespace
 
 // TODO Maybe we could auto-detect? It could become ambiguous tho
-static VoxelMesherTransvoxel::TexturingMode check_texturing_mode(
-		const VoxelMesherTransvoxel::TexturingMode expected_tex_mode,
+static BiomeMesherTransvoxel::TexturingMode check_texturing_mode(
+		const BiomeMesherTransvoxel::TexturingMode expected_tex_mode,
 		const VoxelBuffer &vb
 ) {
 #ifdef TOOLS_ENABLED
 	// Do more advanced error reporting in development
 	switch (expected_tex_mode) {
-		case VoxelMesherTransvoxel::TEXTURES_MIXEL4_S4: {
+		case BiomeMesherTransvoxel::TEXTURES_MIXEL4_S4: {
 			const VoxelBuffer::Depth indices_depth = vb.get_channel_depth(VoxelBuffer::CHANNEL_INDICES);
 			if (indices_depth != VoxelBuffer::DEPTH_16_BIT) {
 				ZN_PRINT_ERROR_ONCE(format(
@@ -265,7 +282,7 @@ static VoxelMesherTransvoxel::TexturingMode check_texturing_mode(
 						"mode.",
 						VoxelBuffer::get_depth_byte_count(indices_depth)
 				));
-				return VoxelMesherTransvoxel::TEXTURES_NONE;
+				return BiomeMesherTransvoxel::TEXTURES_NONE;
 			}
 			const VoxelBuffer::Depth weights_depth = vb.get_channel_depth(VoxelBuffer::CHANNEL_WEIGHTS);
 			if (weights_depth != VoxelBuffer::DEPTH_16_BIT) {
@@ -274,11 +291,11 @@ static VoxelMesherTransvoxel::TexturingMode check_texturing_mode(
 						"mode.",
 						VoxelBuffer::get_depth_byte_count(weights_depth)
 				));
-				return VoxelMesherTransvoxel::TEXTURES_NONE;
+				return BiomeMesherTransvoxel::TEXTURES_NONE;
 			}
 		} break;
 
-		case VoxelMesherTransvoxel::TEXTURES_SINGLE_S4: {
+		case BiomeMesherTransvoxel::TEXTURES_SINGLE_S4: {
 			const VoxelBuffer::Depth indices_depth = vb.get_channel_depth(VoxelBuffer::CHANNEL_INDICES);
 			if (indices_depth != VoxelBuffer::DEPTH_8_BIT) {
 				ZN_PRINT_WARNING_ONCE(
@@ -286,11 +303,11 @@ static VoxelMesherTransvoxel::TexturingMode check_texturing_mode(
 							   "texturing mode.",
 							   VoxelBuffer::get_depth_byte_count(indices_depth))
 				);
-				return VoxelMesherTransvoxel::TEXTURES_NONE;
+				return BiomeMesherTransvoxel::TEXTURES_NONE;
 			}
 		} break;
 
-		case VoxelMesherTransvoxel::TEXTURES_NONE:
+		case BiomeMesherTransvoxel::TEXTURES_NONE:
 			break;
 
 		default:
@@ -301,7 +318,7 @@ static VoxelMesherTransvoxel::TexturingMode check_texturing_mode(
 	return expected_tex_mode;
 }
 
-void VoxelMesherTransvoxel::build(VoxelMesher::Output &output, const VoxelMesher::Input &input) {
+void BiomeMesherTransvoxel::build(VoxelMesher::Output &output, const VoxelMesher::Input &input) {
 	ZN_PROFILE_SCOPE();
 
 	static thread_local transvoxel::Cache tls_cache;
@@ -402,12 +419,14 @@ void VoxelMesherTransvoxel::build(VoxelMesher::Output &output, const VoxelMesher
 	output.surfaces.push_back({ gd_arrays, 0 });
 
 	// const uint64_t time_spent = Time::get_singleton()->get_ticks_usec() - time_before;
-	// print_line(String("VoxelMesherTransvoxel spent {0} us").format(varray(time_spent)));
+	// print_line(String("BiomeMesherTransvoxel spent {0} us").format(varray(time_spent)));
 
 	output.primitive_type = Mesh::PRIMITIVE_TRIANGLES;
 
 	// Transvoxel transitions data
 	output.mesh_flags = (RenderingServer::ARRAY_CUSTOM_RGBA_FLOAT << Mesh::ARRAY_FORMAT_CUSTOM0_SHIFT);
+
+	output.mesh_flags |= (RenderingServer::ARRAY_FORMAT_COLOR);
 
 	// Texture data
 	switch (texture_mode) {
@@ -424,7 +443,7 @@ void VoxelMesherTransvoxel::build(VoxelMesher::Output &output, const VoxelMesher
 }
 
 // Only exists for testing
-Ref<ArrayMesh> VoxelMesherTransvoxel::build_transition_mesh(Ref<godot::VoxelBuffer> voxels, int direction) {
+Ref<ArrayMesh> BiomeMesherTransvoxel::build_transition_mesh(Ref<godot::VoxelBuffer> voxels, int direction) {
 	static thread_local transvoxel::Cache s_cache;
 	static thread_local transvoxel::MeshArrays s_mesh_arrays;
 
@@ -467,7 +486,7 @@ Ref<ArrayMesh> VoxelMesherTransvoxel::build_transition_mesh(Ref<godot::VoxelBuff
 	return mesh;
 }
 
-void VoxelMesherTransvoxel::set_texturing_mode(TexturingMode mode) {
+void BiomeMesherTransvoxel::set_texturing_mode(TexturingMode mode) {
 	ZN_ASSERT_RETURN(mode >= 0 && mode < TEXTURES_MODE_COUNT);
 	if (mode != _texture_mode) {
 		_texture_mode = mode;
@@ -475,64 +494,64 @@ void VoxelMesherTransvoxel::set_texturing_mode(TexturingMode mode) {
 	}
 }
 
-VoxelMesherTransvoxel::TexturingMode VoxelMesherTransvoxel::get_texturing_mode() const {
+BiomeMesherTransvoxel::TexturingMode BiomeMesherTransvoxel::get_texturing_mode() const {
 	return _texture_mode;
 }
 
-void VoxelMesherTransvoxel::set_textures_ignore_air_voxels(const bool enable) {
+void BiomeMesherTransvoxel::set_textures_ignore_air_voxels(const bool enable) {
 	_textures_ignore_air_voxels = enable;
 }
 
-bool VoxelMesherTransvoxel::get_textures_ignore_air_voxels() const {
+bool BiomeMesherTransvoxel::get_textures_ignore_air_voxels() const {
 	return _textures_ignore_air_voxels;
 }
 
-void VoxelMesherTransvoxel::set_mesh_optimization_enabled(bool enabled) {
+void BiomeMesherTransvoxel::set_mesh_optimization_enabled(bool enabled) {
 	_mesh_optimization_params.enabled = enabled;
 }
 
-bool VoxelMesherTransvoxel::is_mesh_optimization_enabled() const {
+bool BiomeMesherTransvoxel::is_mesh_optimization_enabled() const {
 	return _mesh_optimization_params.enabled;
 }
 
-void VoxelMesherTransvoxel::set_mesh_optimization_error_threshold(float threshold) {
+void BiomeMesherTransvoxel::set_mesh_optimization_error_threshold(float threshold) {
 	_mesh_optimization_params.error_threshold = math::clamp(threshold, 0.f, 1.f);
 }
 
-float VoxelMesherTransvoxel::get_mesh_optimization_error_threshold() const {
+float BiomeMesherTransvoxel::get_mesh_optimization_error_threshold() const {
 	return _mesh_optimization_params.error_threshold;
 }
 
-void VoxelMesherTransvoxel::set_mesh_optimization_target_ratio(float ratio) {
+void BiomeMesherTransvoxel::set_mesh_optimization_target_ratio(float ratio) {
 	_mesh_optimization_params.target_ratio = math::clamp(ratio, 0.f, 1.f);
 }
 
-float VoxelMesherTransvoxel::get_mesh_optimization_target_ratio() const {
+float BiomeMesherTransvoxel::get_mesh_optimization_target_ratio() const {
 	return _mesh_optimization_params.target_ratio;
 }
 
-void VoxelMesherTransvoxel::set_transitions_enabled(bool enable) {
+void BiomeMesherTransvoxel::set_transitions_enabled(bool enable) {
 	_transitions_enabled = enable;
 }
 
-bool VoxelMesherTransvoxel::get_transitions_enabled() const {
+bool BiomeMesherTransvoxel::get_transitions_enabled() const {
 	return _transitions_enabled;
 }
 
-Ref<ShaderMaterial> VoxelMesherTransvoxel::get_default_lod_material() const {
+Ref<ShaderMaterial> BiomeMesherTransvoxel::get_default_lod_material() const {
 	return g_minimal_shader_material;
 }
 
-void VoxelMesherTransvoxel::set_edge_clamp_margin(float margin) {
+void BiomeMesherTransvoxel::set_edge_clamp_margin(float margin) {
 	_edge_clamp_margin = math::clamp(margin, 0.f, 0.5f);
 }
 
-float VoxelMesherTransvoxel::get_edge_clamp_margin() const {
+float BiomeMesherTransvoxel::get_edge_clamp_margin() const {
 	return _edge_clamp_margin;
 }
 
-void VoxelMesherTransvoxel::_bind_methods() {
-	using Self = VoxelMesherTransvoxel;
+void BiomeMesherTransvoxel::_bind_methods() {
+	using Self = BiomeMesherTransvoxel;
 
 	ClassDB::bind_method(D_METHOD("build_transition_mesh", "voxel_buffer", "direction"), &Self::build_transition_mesh);
 

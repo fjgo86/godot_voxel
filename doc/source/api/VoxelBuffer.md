@@ -69,7 +69,7 @@ Return                                                                          
 enum **ChannelId**: 
 
 - <span id="i_CHANNEL_TYPE"></span>**CHANNEL_TYPE** = **0** --- Channel used to store voxel types. Used by [VoxelMesherBlocky](VoxelMesherBlocky.md).
-- <span id="i_CHANNEL_SDF"></span>**CHANNEL_SDF** = **1** --- Channel used to store SDF data (signed distance field). Used by [VoxelMesherTransvoxel](VoxelMesherTransvoxel.md) and other smooth meshers. Values should preferably be accessed as floats. Negative values are below the isosurface (inside matter), and positive values are above the surface (outside matter).
+- <span id="i_CHANNEL_SDF"></span>**CHANNEL_SDF** = **1** --- Channel used to store SDF data (signed distance field). Used by [BiomeMesherTransvoxel](BiomeMesherTransvoxel.md) and other smooth meshers. Values should preferably be accessed as floats. Negative values are below the isosurface (inside matter), and positive values are above the surface (outside matter).
 - <span id="i_CHANNEL_COLOR"></span>**CHANNEL_COLOR** = **2** --- Channel used to store color data. Used by [VoxelMesherCubes](VoxelMesherCubes.md).
 - <span id="i_CHANNEL_INDICES"></span>**CHANNEL_INDICES** = **3** --- Channel used to store material indices. Used with smooth voxels.
 - <span id="i_CHANNEL_WEIGHTS"></span>**CHANNEL_WEIGHTS** = **4** --- Channel used to store material weights, when more than one index can be stored per voxel. Used with smooth voxels.

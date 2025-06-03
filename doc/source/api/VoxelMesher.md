@@ -2,7 +2,7 @@
 
 Inherits: [Resource](https://docs.godotengine.org/en/stable/classes/class_resource.html)
 
-Inherited by: [VoxelMesherBlocky](VoxelMesherBlocky.md), [VoxelMesherCubes](VoxelMesherCubes.md), [VoxelMesherTransvoxel](VoxelMesherTransvoxel.md)
+Inherited by: [VoxelMesherBlocky](VoxelMesherBlocky.md), [VoxelMesherCubes](VoxelMesherCubes.md), [BiomeMesherTransvoxel](BiomeMesherTransvoxel.md)
 
 Base class for all meshing algorithms.
 

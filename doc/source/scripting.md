@@ -23,7 +23,7 @@ voxel_tool.channel = VoxelBuffer.CHANNEL_TYPE
 ```
 
 ```gdscript
-# If you use VoxelMesherTransvoxel
+# If you use BiomeMesherTransvoxel
 voxel_tool.channel = VoxelBuffer.CHANNEL_SDF
 ```
 

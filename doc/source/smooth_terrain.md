@@ -1,7 +1,7 @@
 Smooth terrains
 ===================
 
-It is possible to work with smooth-looking terrains, using signed distance fields and `VoxelMesherTransvoxel`.
+It is possible to work with smooth-looking terrains, using signed distance fields and `BiomeMesherTransvoxel`.
 
 
 Signed distance fields
@@ -105,7 +105,7 @@ For more information, visit [https://transvoxel.org/](https://transvoxel.org/).
 
 ### Smooth stitches in vertex shader
 
-Transvoxel uses special meshes to stitch blocks of different level of detail. However the seams may still be visible as occasional sharp little steps. To smooth this out a bit, meshes produced by `VoxelMesherTransvoxel` contain extra information in their `CUSTOM0` attribute, telling how to move vertices to smooth those steps, and make room for them in the regular part of the mesh.
+Transvoxel uses special meshes to stitch blocks of different level of detail. However the seams may still be visible as occasional sharp little steps. To smooth this out a bit, meshes produced by `BiomeMesherTransvoxel` contain extra information in their `CUSTOM0` attribute, telling how to move vertices to smooth those steps, and make room for them in the regular part of the mesh.
 
 Create and setup a `ShaderMaterial` on your terrain, and integrate this snippet to it:
 
@@ -275,7 +275,7 @@ See also this [painting demo](https://github.com/Zylann/voxelgame/tree/master/pr
 
 ### Mesh data
 
-Currently, all voxel texture formats are combined into the same vertex format: when calculating every marching cube cell, the mesher gathers the most-represented textures over the corresponding voxels, and stores the result in vertex data. This format is referred to as `S4` in `VoxelMesherTransvoxel`, as it gathers groups of 4 textures.
+Currently, all voxel texture formats are combined into the same vertex format: when calculating every marching cube cell, the mesher gathers the most-represented textures over the corresponding voxels, and stores the result in vertex data. This format is referred to as `S4` in `BiomeMesherTransvoxel`, as it gathers groups of 4 textures.
 
 The mesher will include texturing information in the `CUSTOM1` attribute of vertices. Contrary to voxel values, the packed information will have 8 bits of precision:
 
@@ -439,7 +439,7 @@ Parameter name                          | Type         | Description
 `u_voxel_block_size`                    | `int`        | Size of the cubic block of voxels that the mesh represents, in voxels.
 `u_voxel_virtual_texture_fade`          | `float`      | When LOD fading is enabled, this will be a value between 0 and 1 for how much to mix in detail textures such as `u_voxel_normalmap_atlas`. They take time to update so this allows them to appear smoothly. The value is 1 if fading is not enabled, or 0 if the mesh has no detail textures.
 `u_voxel_virtual_texture_offset_scale`  | `vec4`       | Used in LOD terrains where normalmaps are enabled. Contains a transformation to apply when sampling `u_voxel_cell_lookup` and `u_voxel_normalmap_atlas`. `x`, `y` and `z` contain an offset, and `w` contain a scale. This is relevant when textures for the current mesh aren't ready yet, so it falls back on a parent LOD: parent meshes are larger, so we need to sample a sub-region.
-`u_transition_mask`                     | `int`        | When using `VoxelMesherTransvoxel`, this is a bitmask storing informations about neighboring meshes of different levels of detail. If one of the 6 sides of the mesh has a lower-resolution neighbor, the corresponding bit will be `1`. Side indices are in order `-X`, `X`, `-Y`, `Y`, `-Z`, `Z` and are stored in the first byte. Layout: `00000000 00000000 00000000 00xxyyzz`. See [smooth stitches in vertex shaders](#smooth-stitches-in-vertex-shader).
+`u_transition_mask`                     | `int`        | When using `BiomeMesherTransvoxel`, this is a bitmask storing informations about neighboring meshes of different levels of detail. If one of the 6 sides of the mesh has a lower-resolution neighbor, the corresponding bit will be `1`. Side indices are in order `-X`, `X`, `-Y`, `Y`, `-Z`, `Z` and are stored in the first byte. Layout: `00000000 00000000 00000000 00xxyyzz`. See [smooth stitches in vertex shaders](#smooth-stitches-in-vertex-shader).
 `u_voxel_lod_info`                      | `int`        | Will be assigned to a combination of the LOD index of the block and the total number of LODs. Layout: `000000 000000 cccccccc iiiiiiii` where `c` is LOD count and `i` is LOD index. Mainly intented for debugging.
 
 
