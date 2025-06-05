@@ -117,6 +117,8 @@ void fill_surface_arrays(
 
 	copy_to(indices, to_span_const(src.indices));
 
+	static int surface_calls_counter = 0;
+
 	arrays.resize(Mesh::ARRAY_MAX);
 	arrays[Mesh::ARRAY_VERTEX] = vertices;
 	if (src.normals.size() != 0) {
@@ -139,19 +141,60 @@ void fill_surface_arrays(
 	PackedColorArray colors;
 
 	if (apply_colors){
+		++surface_calls_counter;
 		colors.resize(vertices.size());
 		for (int i = 0; i < vertices.size(); ++i) {
-			Color color;
-			Vector3i voxel_pos = Vector3i(Math::floor(vertices[i].x), Math::floor(vertices[i].y), Math::floor(vertices[i].z)) + origin;
 
-			// Índice de bioma: valores 0, 1, 2, 3 en bandas por X
-			int biome_id = CLAMP((voxel_pos.y - min_height) / height_step, 0, 3);
-			color.r = float(biome_id) / 4.0f; // Shader: biome_index = int(COLOR.r * 4.0);
+			Vector3 local_pos_f = vertices[i]; // Local block-space position
+			Vector3i local_pos = Vector3i(Math::round(local_pos_f.x), Math::round(local_pos_f.y), Math::round(local_pos_f.z));
+
+			if (voxels->is_position_valid(local_pos)) {
+				uint32_t color_rgba = voxels->get_voxel(local_pos.x, local_pos.y, local_pos.z, VoxelBuffer::CHANNEL_COLOR);
+				float r = ((color_rgba >> 24) & 0xFF) / 255.0f;
+				float g = ((color_rgba >> 16) & 0xFF) / 255.0f;
+				float b = ((color_rgba >> 8) & 0xFF) / 255.0f;
+				float a = (color_rgba & 0xFF) / 255.0f;
+				//colors[i] = Color(r, g, b, a);
+				colors[i] = Color(surface_calls_counter % 18, 0.0, 1.0);
+			} else {
+				colors[i] = Color(1.0, 0.0, 1.0); // Magenta: error
+			}
+			/*Color color;
+			Vector3i voxel_pos = Vector3i(Math::floor(vertices[i].x), Math::floor(vertices[i].y), Math::floor(vertices[i].z)) + origin;
+			uint32_t texture_id = voxel_buffer->get_voxel(Vector3(x, y, z), VoxelBuffer::CHANNEL_COLOR);
+
+			// Texture ID
+			//int texture_id = CLAMP((voxel_pos.y - min_height) / height_step, 0, 18);
+			color.r = float(texture_id); // Shader: biome_index = int(COLOR.r * 4.0);
 			color.g = 0.0f;
 			color.b = 0.0f;
-			color.a = 1.0f;
+			color.a = 1.0f;*/
 
-			colors[i] = color;
+			// Alternativa 2, control absoluto de los voxels
+			/*float min_dist = 1e9;
+			Vector3i best_voxel;
+			for (int dx = 0; dx <= 1; ++dx) {
+				for (int dy = 0; dy <= 1; ++dy) {
+					for (int dz = 0; dz <= 1; ++dz) {
+						Vector3i v = Vector3i(vertices[i]) + Vector3i(dx, dy, dz);
+						if (!voxels->is_position_valid(v)) continue;
+						Vector3 center = Vector3(v) + Vector3(0.5f, 0.5f, 0.5f);
+						float dist = vertices[i].distance_to(center);
+						if (dist < min_dist) {
+							min_dist = dist;
+							best_voxel = v;
+						}
+					}
+				}
+			}
+			uint32_t color_data = voxels->get_voxel(best_voxel.x, best_voxel.y, best_voxel.z, VoxelBuffer::CHANNEL_COLOR);
+			colors[i] = Color::from_rgba32(color_data);
+			*/
+			/*if (voxel_pos.x % 50 == 0 && voxel_pos.y % 50 == 0 && voxel_pos.z % 50 == 0) {
+				UtilityFunctions::print("Voxel[", voxel_pos.x,",",voxel_pos.y,",",voxel_pos.z,"] got texture_index=", texture_id, " RGBA32=", color.to_rgba32());
+			}*/
+
+			//colors[i] = color;
 		}
 	}
 	
@@ -629,5 +672,4 @@ void BiomeMesherTransvoxel::_bind_methods() {
 	// Legacy alias for MIXEL4_S4
 	BIND_CONSTANT(TEXTURES_BLEND_4_OVER_16);
 }
-
 } // namespace zylann::voxel

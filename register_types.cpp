@@ -324,6 +324,7 @@ void initialize_voxel_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_abstract_class<VoxelMesher>();
 		ClassDB::register_class<VoxelMesherBlocky>();
 		ClassDB::register_class<VoxelMesherCubes>();
+		WorldGenerator::expose_classes();
 
 		// See SCsub
 #ifdef VOXEL_ENABLE_FAST_NOISE_2
@@ -570,7 +571,6 @@ void initialize_voxel_module(ModuleInitializationLevel p_level) {
 #endif
 	}
 #endif // TOOLS_ENABLED
-	WorldGenerator::expose_classes();
 }
 
 void uninitialize_voxel_module(ModuleInitializationLevel p_level) {

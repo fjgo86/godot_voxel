@@ -112,7 +112,7 @@ private:
 
 	bool _transitions_enabled = true;
 
-	bool _textures_ignore_air_voxels = false;
+	bool _textures_ignore_air_voxels = true;
 	
 
 	

@@ -96,11 +96,13 @@ is_editor_build = (env["target"] == "editor")
 sources = common.get_sources(env, is_editor_build)
 
 sources += Glob("world_generator/*.cpp")
+sources += Glob("world_generator/biomes/*.cpp")
 
 env.Append(
     CPPPATH=[
         ".",
-        "world_generator/",  # Add your include folder(s) here
+        "world_generator/",
+        "world_generator/biomes/"
         # Add more paths as needed, e.g.:
         # "some/other/include/path",
     ]
@@ -151,6 +153,12 @@ if env["platform"] == "macos":
         source = sources
     )
 else:
+    if env["platform"] == "windows":
+        env.Append(CCFLAGS=["/Zi", "/FS"])
+        env.Append(LINKFLAGS=["/DEBUG"])
+        env.Append(CCFLAGS=["/Od"])
+        
+
     library = env.SharedLibrary(
         "{}/{}{}{}".format(
             BIN_FOLDER,
